@@ -1,0 +1,75 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    background-color: #f4f4f4; /* Light gray background for better contrast */
+}
+
+h1 {
+    color: #333;
+}
+
+div {
+    margin-bottom: 10px;
+}
+
+label {
+    margin-right: 5px;
+}
+
+input[type="number"], button {
+    padding: 8px;
+    margin: 5px 0; /* Adjusted margin for better vertical spacing */
+    border-radius: 4px; /* Slightly rounded corners */
+    border: 1px solid #ddd;
+}
+
+button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+#gameDisplay {
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid #ccc;
+    padding: 15px; /* Increased padding */
+    margin-top: 20px; /* Increased margin-top */
+    white-space: pre; /* Preserves whitespace and line breaks, good for scores */
+    background-color: #fff; /* White background for the game display */
+    min-height: 50px; /* Minimum height */
+    text-align: left; /* Align text to the left for score readability */
+}
+
+#totalScore {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-top: 15px; /* Increased margin-top */
+    color: #333;
+}
+
+/* Basic responsive design for smaller screens */
+@media (max-width: 600px) {
+    body {
+        margin: 10px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    input[type="number"], button {
+        width: calc(100% - 16px); /* Full width minus padding */
+        box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+    #gameDisplay {
+        width: calc(100% - 30px); /* Full width minus padding */
+        box-sizing: border-box;
+    }
+}

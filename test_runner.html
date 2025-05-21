@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bowling Score Tests</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .test-result { margin-bottom: 8px; padding: 5px; border: 1px solid #eee; }
+        .passed { background-color: #e6ffe6; color: #006600; }
+        .failed { background-color: #ffe6e6; color: #990000; }
+    </style>
+</head>
+<body>
+    <h1>Bowling Score Tests</h1>
+    <div id="testResults">
+        <p>Running tests...</p>
+    </div>
+
+    <script src="script.js"></script> 
+    <script src="test_game_logic.js"></script>
+
+    <script>
+        // This function will be called by test_game_logic.js to update the HTML
+        function updateTestResultsOnPage(testName, status, details) {
+            const resultsDiv = document.getElementById('testResults');
+            if (resultsDiv.innerHTML.includes("Running tests...")) {
+                resultsDiv.innerHTML = ''; // Clear "Running tests..." message on first result
+            }
+
+            const resultElement = document.createElement('div');
+            resultElement.classList.add('test-result');
+            resultElement.classList.add(status === 'PASSED' ? 'passed' : 'failed');
+            
+            let text = `Test: ${testName} - <strong>${status}</strong>`;
+            if (details) {
+                text += `<br><small>${details}</small>`;
+            }
+            resultElement.innerHTML = text;
+            resultsDiv.appendChild(resultElement);
+        }
+
+        // Optional: Call a function to start tests if test_game_logic.js doesn't auto-run
+        // window.onload = () => {
+        //     if (typeof runAllTests === 'function') { // Assuming runAllTests is defined in test_game_logic.js
+        //         runAllTests();
+        //     }
+        // };
+    </script>
+</body>
+</html>

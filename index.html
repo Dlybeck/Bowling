@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bowling Game Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Bowling Game Generator</h1>
+
+    <div>
+        <label for="strikes">Number of strikes:</label>
+        <input type="number" id="strikes" name="strikes" min="0" max="12">
+    </div>
+
+    <div>
+        <label for="spares">Number of spares:</label>
+        <input type="number" id="spares" name="spares" min="0" max="10">
+    </div>
+
+    <div>
+        <label for="avgFirstBall">Average 1st ball pins (for non-strike/spare frames):</label>
+        <input type="number" id="avgFirstBall" name="avgFirstBall" min="0" max="9">
+    </div>
+
+    <button id="generateButton">Generate Game</button>
+
+    <div id="gameDisplay">
+        <!-- Frame by frame scores will be displayed here -->
+    </div>
+
+    <div id="totalScore">
+        <!-- Total score will be displayed here -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
