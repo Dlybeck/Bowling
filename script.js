@@ -138,7 +138,7 @@ function generateGame(strikes, spares, avgFirstBallInput) {
 
 function calculateScore(game) {
     console.log("calculateScore called with game (flat rolls array):", game);
-    let score = 0;
+    let individualFrameScores = new Array(10).fill(0);
     let rollIndex = 0;
 
     for (let frame = 0; frame < 10; frame++) {
@@ -147,15 +147,16 @@ function calculateScore(game) {
         }
 
         let roll1 = game[rollIndex];
+        let frameScore = 0;
 
         if (roll1 === 10) { // Strike
             let bonus1 = (rollIndex + 1 < game.length && game[rollIndex + 1] !== null) ? game[rollIndex + 1] : 0;
             let bonus2 = (rollIndex + 2 < game.length && game[rollIndex + 2] !== null) ? game[rollIndex + 2] : 0;
-            score += 10 + bonus1 + bonus2;
+            frameScore = 10 + bonus1 + bonus2;
             rollIndex += 1; 
         } else if (rollIndex + 1 < game.length && game[rollIndex + 1] !== null && (roll1 + game[rollIndex + 1] === 10)) { // Spare
             let bonus1 = (rollIndex + 2 < game.length && game[rollIndex + 2] !== null) ? game[rollIndex + 2] : 0;
-            score += 10 + bonus1;
+            frameScore = 10 + bonus1;
             rollIndex += 2; 
         } else { // Open Frame
             let currentRoll1Value = (roll1 === null ? 0 : roll1);
@@ -163,95 +164,141 @@ function calculateScore(game) {
             if (rollIndex + 1 < game.length && game[rollIndex + 1] !== null) {
                 roll2Value = game[rollIndex + 1];
             }
-            score += currentRoll1Value + roll2Value;
+            frameScore = currentRoll1Value + roll2Value;
             rollIndex += 2; 
         }
+        individualFrameScores[frame] = frameScore;
     }
-    return score;
+
+    let cumulativeFrameScores = new Array(10).fill(0);
+    let currentTotalScore = 0;
+    for (let i = 0; i < 10; i++) {
+        currentTotalScore += individualFrameScores[i];
+        cumulativeFrameScores[i] = currentTotalScore;
+    }
+    
+    return cumulativeFrameScores;
 }
 
-function displayGame(game, score) {
+function displayGame(game, cumulativeFrameScores) { 
     console.log("displayGame received game (flat rolls array):", game); 
     const gameDisplayDiv = document.getElementById('gameDisplay');
-    const totalScoreDiv = document.getElementById('totalScore'); // Corrected variable name
+    const totalScoreDiv = document.getElementById('totalScore');
 
     if (gameDisplayDiv) {
         gameDisplayDiv.innerHTML = ''; // Clear previous display
-        let rollIndex = 0;
+        let rollIndex = 0; // Tracks current position in the 'game' array
+
+        const createRollSpan = (text) => {
+            const span = document.createElement('span');
+            span.classList.add('roll');
+            span.textContent = text;
+            return span;
+        };
 
         for (let frameNumber = 1; frameNumber <= 10; frameNumber++) {
             const frameDiv = document.createElement('div');
             frameDiv.classList.add('frame');
 
-            const frameTitle = document.createElement('h3');
-            frameTitle.textContent = `Frame ${frameNumber}`;
-            frameDiv.appendChild(frameTitle);
+            const frameNumberDiv = document.createElement('div');
+            frameNumberDiv.classList.add('frame-number');
+            frameNumberDiv.textContent = frameNumber;
+            frameDiv.appendChild(frameNumberDiv);
 
             const rollsDisplayContainer = document.createElement('div');
             rollsDisplayContainer.classList.add('rolls-display');
 
-            const createRollSpan = (text) => {
-                const span = document.createElement('span');
-                span.classList.add('roll');
-                span.textContent = text;
-                return span;
-            };
-            
-            if (frameNumber < 10) { // Frames 1-9
-                if (rollIndex >= game.length || game[rollIndex] === null) {
-                    rollsDisplayContainer.appendChild(createRollSpan('-'));
-                    rollsDisplayContainer.appendChild(createRollSpan('-'));
-                    // rollIndex += 2; // Advance even for empty frames to show 10 frames
-                } else {
+            let framePlayed = (rollIndex < game.length && game[rollIndex] !== null);
+
+            if (frameNumber < 10) {
+                if (framePlayed) {
                     let roll1 = game[rollIndex];
                     if (roll1 === 10) { // Strike
-                        rollsDisplayContainer.appendChild(createRollSpan('')); // First box empty for strike
+                        rollsDisplayContainer.appendChild(createRollSpan('')); 
                         rollsDisplayContainer.appendChild(createRollSpan('X'));
                         rollIndex += 1; 
                     } else {
                         let roll2 = (rollIndex + 1 < game.length) ? game[rollIndex + 1] : null;
-                        rollsDisplayContainer.appendChild(createRollSpan(roll1 === null ? '-' : roll1));
-                        if (roll1 !== null && roll2 !== null && roll1 + roll2 === 10) { // Spare
+                        rollsDisplayContainer.appendChild(createRollSpan(roll1)); // roll1 is not null here
+                        if (roll2 !== null && roll1 + roll2 === 10) { // Spare
                             rollsDisplayContainer.appendChild(createRollSpan('/'));
                         } else {
                             rollsDisplayContainer.appendChild(createRollSpan(roll2 === null ? '-' : roll2));
                         }
                         rollIndex += 2;
                     }
+                } else {
+                    rollsDisplayContainer.appendChild(createRollSpan('-'));
+                    rollsDisplayContainer.appendChild(createRollSpan('-'));
                 }
             } else { // Frame 10
                 let r1 = (rollIndex < game.length) ? game[rollIndex] : null;
                 let r2 = (rollIndex + 1 < game.length) ? game[rollIndex + 1] : null;
                 let r3 = (rollIndex + 2 < game.length) ? game[rollIndex + 2] : null;
 
-                // Roll 1
                 rollsDisplayContainer.appendChild(createRollSpan(r1 === 10 ? 'X' : (r1 === null ? '-' : r1)));
                 
-                // Roll 2
-                let r2Display = '-';
+                let r2Text = '-';
                 if (r2 !== null) {
-                    if (r1 === 10 && r2 === 10) r2Display = 'X';       // Case: X X
-                    else if (r1 === 10 && r2 < 10) r2Display = r2;      // Case: X Y
-                    else if (r1 < 10 && r1 + r2 === 10) r2Display = '/';// Case: Y / (Spare)
-                    else r2Display = r2;                                // Case: Y Z (Open)
+                    if (r1 === 10 && r2 === 10) r2Text = 'X';       
+                    else if (r1 === 10 && r2 < 10) r2Text = r2;     
+                    else if (r1 < 10 && r1 + r2 === 10) r2Text = '/';
+                    else r2Text = r2;                               
                 }
-                rollsDisplayContainer.appendChild(createRollSpan(r2Display));
+                rollsDisplayContainer.appendChild(createRollSpan(r2Text));
                 
-                // Roll 3 (Bonus)
-                let r3Display = ''; // Empty if not applicable
-                if (r1 === 10 || (r1 !== null && r1 < 10 && r2 !== null && r1 + r2 === 10)) { // Eligible for 3rd ball
-                    r3Display = '-'; // Default to '-' if eligible but no roll / null
+                let r3Text = ''; 
+                if (r1 === 10 || (r1 !== null && r1 < 10 && r2 !== null && r1 + r2 === 10)) { 
+                    r3Text = '-'; 
                     if (r3 !== null) {
-                        if (r2 === 10 && r3 === 10) r3Display = 'X';                // Case: X X X
-                        else if (r2 === 10 && r3 < 10) r3Display = r3;               // Case: X X Z
-                        else if (r2 < 10 && (r1 === 10 || r1 + r2 === 10) && r2 + r3 === 10) r3Display = '/'; // Case: X Y / or Y / /
-                        else r3Display = r3;                                         // Case: X Y Z or Y / Z
+                        if (r2 === 10 && r3 === 10) r3Text = 'X'; // Covers X X X
+                        else if (r2 === 10 && r3 < 10) r3Text = r3; // Covers X X 5
+                        else if (r2 < 10 && r1 === 10 && r2 + r3 === 10) r3Text = '/'; // Covers X 5 /
+                        else if (r2 < 10 && r1 < 10 && r1+r2 === 10 && r3 === 10) r3Text = 'X'; // Covers 5 / X
+                        else if (r2 < 10 && r1 < 10 && r1+r2 === 10 && r3 < 10) r3Text = r3; // Covers 5 / 5
+                        else r3Text = r3; // Covers X 5 2
                     }
                 }
-                rollsDisplayContainer.appendChild(createRollSpan(r3Display));
-                rollIndex = game.length; // Ensure we don't process past game array for 10th
+                rollsDisplayContainer.appendChild(createRollSpan(r3Text));
             }
             frameDiv.appendChild(rollsDisplayContainer);
+
+            const frameScoreDiv = document.createElement('div');
+            frameScoreDiv.classList.add('frame-score');
+            // Display score if the frame was played (basic check: first roll of frame was not null)
+            // More accurately, if cumulative score for this frame is available and meaningful
+            let scoreToShow = cumulativeFrameScores[frameNumber - 1];
+            let prevScore = frameNumber > 1 ? cumulativeFrameScores[frameNumber - 2] : 0;
+            
+            // Determine if the frame's first roll was actually processed by calculateScore
+            // This is approximated by checking if rollIndex for this frame would have been valid
+            let frameConsideredPlayedByScore = false;
+            let tempRollIdx = 0;
+            for(let k=0; k<frameNumber-1; k++){
+                if(tempRollIdx >= game.length || game[tempRollIdx] === null) break;
+                if(game[tempRollIdx] === 10) tempRollIdx +=1; else tempRollIdx +=2;
+            }
+            if(tempRollIdx < game.length && game[tempRollIdx] !== null) frameConsideredPlayedByScore = true;
+            if (frameNumber === 1 && game[0] !== null) frameConsideredPlayedByScore = true;
+
+
+            if (frameConsideredPlayedByScore || (scoreToShow > 0 && scoreToShow !== prevScore) || (scoreToShow === 0 && frameNumber === 1 && game[0]!==null) ) {
+                frameScoreDiv.textContent = scoreToShow;
+            } else {
+                 // Check if all rolls for this frame in the 'game' array are null or beyond its length
+                let currentFrameRollsStart = 0; 
+                for(let k=0; k < frameNumber -1; k++){
+                    if(frames[k] && frames[k].type === 'strike') currentFrameRollsStart +=1; else currentFrameRollsStart +=2;
+                }
+                if(!(currentFrameRollsStart < game.length && game[currentFrameRollsStart] !== null)){
+                     frameScoreDiv.textContent = ''; // Keep empty if no rolls for this frame
+                } else {
+                     frameScoreDiv.textContent = scoreToShow;
+                }
+            }
+
+
+            frameDiv.appendChild(frameScoreDiv);
             gameDisplayDiv.appendChild(frameDiv);
         }
     } else {
@@ -259,7 +306,11 @@ function displayGame(game, score) {
     }
 
     if (totalScoreDiv) { 
-        totalScoreDiv.textContent = "Total Score: " + score; 
+        let finalScore = 0;
+        if (cumulativeFrameScores && cumulativeFrameScores.length > 0) {
+            finalScore = cumulativeFrameScores[cumulativeFrameScores.length - 1]; 
+        }
+        totalScoreDiv.textContent = "Total Score: " + finalScore; 
     } else {
         console.error("totalScore element not found");
     }
@@ -299,9 +350,9 @@ function generateAndDisplayGame() {
     console.log("User Inputs -- Strikes:", strikes, "Spares:", spares, "Avg 1st Ball:", avgFirstBall);
 
     const gameRolls = generateGame(strikes, spares, avgFirstBall);
-    const currentScore = calculateScore(gameRolls);
-    console.log("Calculated Score:", currentScore); 
-    displayGame(gameRolls, currentScore);
+    const cumulativeFrameScores = calculateScore(gameRolls); 
+    console.log("Calculated Cumulative Scores:", cumulativeFrameScores); 
+    displayGame(gameRolls, cumulativeFrameScores); 
 }
 
 // Event Listener for the button

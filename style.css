@@ -4,15 +4,11 @@ body {
     flex-direction: column;
     align-items: center;
     margin: 20px;
-    background-color: #f4f4f4; /* Light gray background for better contrast */
+    background-color: #f4f4f4; 
 }
 
 h1 {
     color: #333;
-}
-
-div {
-    margin-bottom: 10px;
 }
 
 label {
@@ -21,55 +17,170 @@ label {
 
 input[type="number"], button {
     padding: 8px;
-    margin: 5px 0; /* Adjusted margin for better vertical spacing */
-    border-radius: 4px; /* Slightly rounded corners */
+    margin: 5px 0; 
+    border-radius: 4px; 
     border: 1px solid #ddd;
 }
 
 button {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50; 
     color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    transition: background-color 0.3s ease; 
 }
 
 button:hover {
-    background-color: #45a049; /* Darker green on hover */
+    background-color: #45a049; 
 }
 
+/* Scorecard Display Area */
 #gameDisplay {
-    font-family: 'Courier New', Courier, monospace;
-    border: 1px solid #ccc;
-    padding: 15px; /* Increased padding */
-    margin-top: 20px; /* Increased margin-top */
-    white-space: pre; /* Preserves whitespace and line breaks, good for scores */
-    background-color: #fff; /* White background for the game display */
-    min-height: 50px; /* Minimum height */
-    text-align: left; /* Align text to the left for score readability */
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center; 
+    padding: 10px;
+    margin-top: 20px;
+    border: 2px solid #777; 
+    background-color: #f0f0f0; 
+    width: auto; 
+    max-width: 1050px; /* Max width for approx 10 frames + margins */
+    min-height: auto; 
+    border-radius: 5px;
+}
+
+.frame {
+    display: grid; 
+    grid-template-rows: auto 1fr; /* Row 1 for top (number & rolls), Row 2 for score */
+    grid-template-columns: auto 1fr; /* Column 1 for frame number, Column 2 for rolls */
+    border: 1px solid black;
+    width: 90px;  /* Fixed width */
+    height: 60px; /* Fixed height */
+    margin: 4px;
+    background-color: #fff;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.frame-number {
+    grid-row: 1 / 2;    /* First row */
+    grid-column: 1 / 2; /* First column */
+    font-size: 0.6em; 
+    padding: 3px 2px 0px 3px; /* Top-left padding */
+    text-align: left; 
+    color: #555;
+    font-weight: bold;
+    align-self: flex-start; /* Align to the top of the grid cell */
+}
+
+.rolls-display {
+    grid-row: 1 / 2;    /* First row */
+    grid-column: 2 / 3; /* Second column */
+    display: flex;
+    justify-content: flex-end; /* Align roll boxes to the right (top-right) */
+    align-items: flex-start;   /* Align to the top of the grid cell */
+    padding: 2px 2px 0 0;  /* Padding for top-right */
+}
+
+.roll {
+    border: 1px solid #999;
+    width: 20px;  
+    height: 20px; 
+    text-align: center;
+    font-size: 0.8em; 
+    margin-left: 1px; 
+    line-height: 20px; /* Vertically center text */
+    background-color: #fff;
+    font-weight: bold;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.frame:nth-child(10) .roll { /* Adjust for 3 rolls in 10th frame */
+    width: 18px; 
+    height: 18px;
+    line-height: 18px;
+    font-size: 0.7em; 
+}
+
+
+.frame-score {
+    grid-row: 2 / 3;     /* Second row */
+    grid-column: 1 / -1; /* Span both columns */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em; 
+    font-weight: bold;
+    color: #000;
+    border-top: 1px solid #ccc; /* Separator line */
+    margin-top: 2px; /* Small spacing from top row elements */
 }
 
 #totalScore {
-    font-size: 1.2em;
+    font-size: 1.4em; 
     font-weight: bold;
-    margin-top: 15px; /* Increased margin-top */
+    margin-top: 25px; 
     color: #333;
+    padding: 12px 20px;
+    background-color: #333; 
+    color: #fff; 
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Basic responsive design for smaller screens */
-@media (max-width: 600px) {
-    body {
-        margin: 10px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    input[type="number"], button {
-        width: calc(100% - 16px); /* Full width minus padding */
-        box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    }
+/* Responsive adjustments */
+@media (max-width: 1050px) { 
     #gameDisplay {
-        width: calc(100% - 30px); /* Full width minus padding */
-        box-sizing: border-box;
+        justify-content: space-around; 
+    }
+}
+
+@media (max-width: 520px) { 
+     .frame {
+        width: 80px; 
+        height: 55px; /* Slightly smaller frame */
+    }
+    .roll {
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        font-size: 0.75em;
+    }
+     .frame:nth-child(10) .roll {
+        width: 16px; 
+        height: 16px;
+        line-height: 16px;
+        font-size: 0.65em;
+    }
+    .frame-score{
+        font-size: 1.1em;
+    }
+    #totalScore {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 420px) { 
+    .frame {
+        width: calc(50% - 8px); /* Two frames per row, accounting for margin */
+        height: auto; 
+        min-height: 55px; 
+        font-size: 0.9em; 
+    }
+     .roll {
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
+        font-size: 0.65em;
+    }
+    .frame:nth-child(10) .roll {
+         width: 14px;
+         height: 14px;
+         line-height: 14px;
+         font-size:0.6em;
+    }
+    .frame-score {
+        font-size: 1em;
     }
 }
